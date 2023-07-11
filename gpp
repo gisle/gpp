@@ -29,10 +29,16 @@ def main(question):
     max_tokens=256,
     top_p=1,
     frequency_penalty=0,
-    presence_penalty=0
+    presence_penalty=0,
+    stream=True,
   )
 
-  print(json.dumps(response, indent=2, ensure_ascii=False))
+  for chunk in response:
+    if d := chunk['choices'][0]['delta']:
+       print(d['content'], end='', flush=True)
+
+  print()
+
 
 if __name__ == '__main__':
     main()
