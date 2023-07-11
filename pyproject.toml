@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "play"
+name = "gpp"
 version = "0.1.0"
 description = ""
 authors = ["Gisle Aas <gisle.aas@uib.no>"]
@@ -10,6 +10,8 @@ python = "^3.11"
 openai = "^0.27.8"
 click = "^8.1.4"
 
+[tool.poetry.scripts]
+gpp = "gpp.cli:main"
 
 [build-system]
 requires = ["poetry-core"]
