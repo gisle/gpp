@@ -32,10 +32,6 @@ def main(question, new, model, stream, output_json):
         "content": "Du er en ekspert som hjelper til med å forklare hvordan ting henger sammen. "
                   "Fortrinnsvis ønsker du å svare kort og presist på norsk."
       },
-      {
-        "role": "user",
-        "content": ' '.join(question),
-      }
     ]
   else:
     chatfile = sorted(basedir.glob("chats/chat-*.json"), reverse=True)[0]
