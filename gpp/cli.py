@@ -12,9 +12,14 @@ basedir.mkdir(exist_ok=True)
 
 openai.api_key = os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1]
 
+def print_json(d):
+  print(json.dumps(d, ensure_ascii=False, indent=2))
+
 @click.command()
 @click.argument('question', nargs=-1)
-def main(question):
+@click.option('--stream/--no-stream', default=True)
+@click.option('--json/--no-json', 'output_json')
+def main(question, stream, output_json):
   question = ' '.join(question)
 
   response = openai.ChatCompletion.create(
@@ -34,14 +39,23 @@ def main(question):
     top_p=1,
     frequency_penalty=0,
     presence_penalty=0,
-    stream=True,
+    stream=stream,
   )
 
-  for chunk in response:
-    if d := chunk['choices'][0]['delta']:
-       print(d['content'], end='', flush=True)
-
-  print()
+  if stream:
+    for chunk in response:
+      if output_json:
+        print_json(chunk)
+      else:
+        if d := chunk['choices'][0]['delta']:
+          print(d['content'], end='', flush=True)
+    if not output_json:
+      print()  # final newline
+  else:
+    if output_json:
+      print_json(response)
+    else:
+      print(response['choices'][0]['message']['content'])
 
 
 if __name__ == '__main__':
