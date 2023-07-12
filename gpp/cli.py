@@ -17,13 +17,57 @@ openai.api_key = os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").rea
 def print_json(d):
   print(json.dumps(d, ensure_ascii=False, indent=2))
 
+def get_chatfiles():
+    return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
+
 @click.command()
 @click.argument('question', nargs=-1, required=True)
-@click.option('--new/--continue', '-n/-c', default=True)
+@click.option('--new/--continue', '-n/-c', default=True, help="Continue previus conversation or start a new one. The default is --new.")
 @click.option('--model', default='gpt-3.5-turbo', show_default=True)
-@click.option('--stream/--no-stream', default=True)
-@click.option('--json/--no-json', 'output_json')
+@click.option('--stream/--no-stream', default=True, show_default=True)
+@click.option('--json/--no-json', 'output_json', show_default=True)
 def main(question, new, model, stream, output_json):
+  """
+  The gpp command is an interface to OpenAI's conversation models.
+  Just provide the questions you want to ask as argument(s) to the gpp command.
+  This is an assistant that prefers to use Norwegian language.
+
+  To continue a conversation instead of starting a new one each time
+  pass in the -c option (which can also be spelled --continue).
+
+  The follow subcommands can be given as question to access the current
+  chat history; "gpp list" and "gpp recall".  The recall command can also
+  take a the chat number from the list to recall that conversation.
+  """
+  if len(question) == 1 and question[0] == "list":
+    count = 0
+    for f in get_chatfiles():
+      count += 1
+      dt = datetime.fromisoformat(f.stem[5:])
+      m = json.loads(f.read_bytes())
+      print(f"{count}) {dt} {m[1]['content']}")
+      if count >= 7:
+        break
+    return
+
+  if len(question) in (1,2) and question[0] == "recall":
+    n = 1 if len(question) == 1 else int(question[1])
+    f = get_chatfiles()[n-1]
+    msgs = json.loads(f.read_bytes())
+    if output_json:
+      print_json(msgs)
+    else:
+      icon = {
+        'system': '',
+        'user': '👤',
+        'assistant': '👽',
+      }
+      for m in msgs[1:]:
+        print(icon[m['role']], m['content'])
+        print()
+    return
+
+  # perform conversation
   if new:
     chatfile = None
     messages = [
@@ -34,7 +78,7 @@ def main(question, new, model, stream, output_json):
       },
     ]
   else:
-    chatfile = sorted(basedir.glob("chats/chat-*.json"), reverse=True)[0]
+    chatfile = get_chatfiles()[0]
     messages = json.loads(chatfile.read_bytes())
 
   messages.append({
