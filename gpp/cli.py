@@ -17,13 +17,14 @@ def print_json(d):
 
 @click.command()
 @click.argument('question', nargs=-1)
+@click.option('--model', default='gpt-3.5-turbo', show_default=True)
 @click.option('--stream/--no-stream', default=True)
 @click.option('--json/--no-json', 'output_json')
-def main(question, stream, output_json):
+def main(question, model, stream, output_json):
   question = ' '.join(question)
 
   response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
+    model=model,
     messages=[
       {
         "role": "system",
