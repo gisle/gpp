@@ -24,17 +24,27 @@ def print_json(d):
 @click.option('--stream/--no-stream', default=True)
 @click.option('--json/--no-json', 'output_json')
 def main(question, new, model, stream, output_json):
-  messages = [
-    {
-      "role": "system",
-      "content": "Du er en ekspert som hjelper til med å forklare hvordan ting henger sammen. "
-                 "Fortrinnsvis ønsker du å svare kort og presist på norsk."
-    },
-    {
-      "role": "user",
-      "content": ' '.join(question),
-    }
-  ]
+  if new:
+    chatfile = None
+    messages = [
+      {
+        "role": "system",
+        "content": "Du er en ekspert som hjelper til med å forklare hvordan ting henger sammen. "
+                  "Fortrinnsvis ønsker du å svare kort og presist på norsk."
+      },
+      {
+        "role": "user",
+        "content": ' '.join(question),
+      }
+    ]
+  else:
+    chatfile = sorted(basedir.glob("chats/chat-*.json"), reverse=True)[0]
+    messages = json.loads(chatfile.read_bytes())
+
+  messages.append({
+    "role": "user",
+    "content": ' '.join(question),
+  })
 
   response = openai.ChatCompletion.create(
     model=model,
@@ -74,7 +84,8 @@ def main(question, new, model, stream, output_json):
   )
 
   # Save the chat
-  chatfile = basedir / "chats" / ("chat-" + datetime.now().strftime('%Y%m%dT%H%M%S') + '.json')
+  if not chatfile:
+    chatfile = basedir / "chats" / ("chat-" + datetime.now().strftime('%Y%m%dT%H%M%S') + '.json')
   chatfile.write_text(json.dumps(messages, ensure_ascii=False, indent=2))
 
 if __name__ == '__main__':
