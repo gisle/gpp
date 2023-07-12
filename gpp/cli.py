@@ -18,7 +18,7 @@ def print_json(d):
   print(json.dumps(d, ensure_ascii=False, indent=2))
 
 @click.command()
-@click.argument('question', nargs=-1)
+@click.argument('question', nargs=-1, required=True)
 @click.option('--new/--continue', '-n/-c', default=True)
 @click.option('--model', default='gpt-3.5-turbo', show_default=True)
 @click.option('--stream/--no-stream', default=True)
