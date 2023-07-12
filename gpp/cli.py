@@ -58,7 +58,7 @@ def main(question, new, model, stream, output_json):
       print_json(msgs)
     else:
       icon = {
-        'system': '',
+        'system': '🛂',
         'user': '👤',
         'assistant': '👽',
       }
