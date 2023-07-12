@@ -5,8 +5,12 @@ import sys
 import click
 import openai
 import json
+from pathlib import Path
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+basedir = Path.home() / ".gpp"
+basedir.mkdir(exist_ok=True)
+
+openai.api_key = os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1]
 
 @click.command()
 @click.argument('question', nargs=-1)
