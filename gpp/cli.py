@@ -45,7 +45,7 @@ def main(question, new, model, stream, output_json):
       count += 1
       dt = datetime.fromisoformat(f.stem[5:])
       m = json.loads(f.read_bytes())
-      print(f"{count}) {dt} {m[1]['content']}")
+      print(f"{count}) {str(dt)[:-3]} {m[1]['content']}")
       if count >= 7:
         break
     return
