@@ -21,7 +21,7 @@ def get_chatfiles():
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
 
 @click.command()
-@click.argument('question', nargs=-1, required=True)
+@click.argument('question', nargs=-1)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previus conversation or start a new one. The default is --new.")
 @click.option('--model', default='gpt-3.5-turbo', show_default=True)
 @click.option('--temperature', default=0.8, show_default=True)
@@ -30,7 +30,8 @@ def get_chatfiles():
 def main(question, new, model, temperature, stream, output_json):
   """
   The gpp command is an interface to OpenAI's conversation models.
-  Just provide the questions you want to ask as argument(s) to the gpp command.
+  Just provide the questions you want to ask as argument(s) to the gpp command
+  or pipe the question to the command without giving arguments.
   This is an assistant that prefers to use Norwegian language.
 
   To continue a conversation instead of starting a new one each time
@@ -67,6 +68,10 @@ def main(question, new, model, temperature, stream, output_json):
         print(icon[m['role']], m['content'])
         print()
     return
+
+  if len(question) == 0:
+    # read the question from stdin
+    question = [sys.stdin.read()]
 
   # perform conversation
   if new:
