@@ -24,9 +24,10 @@ def get_chatfiles():
 @click.argument('question', nargs=-1, required=True)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previus conversation or start a new one. The default is --new.")
 @click.option('--model', default='gpt-3.5-turbo', show_default=True)
+@click.option('--temperature', default=0.8, show_default=True)
 @click.option('--stream/--no-stream', default=True, show_default=True)
 @click.option('--json/--no-json', 'output_json', show_default=True)
-def main(question, new, model, stream, output_json):
+def main(question, new, model, temperature, stream, output_json):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command.
@@ -89,7 +90,7 @@ def main(question, new, model, stream, output_json):
   response = openai.ChatCompletion.create(
     model=model,
     messages=messages,
-    temperature=1,
+    temperature=temperature,
     max_tokens=1024,
     top_p=1,
     frequency_penalty=0,
