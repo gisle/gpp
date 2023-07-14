@@ -39,17 +39,22 @@ def main(question, new, model, temperature, top_p, stream, output_json):
   pass in the -c option (which can also be spelled --continue).
 
   The follow subcommands can be given as question to access the current
-  chat history; "gpp list" and "gpp recall".  The recall command can also
-  take a the chat number from the list to recall that conversation.
+  chat history; "gpp list" and "gpp recall".
+  The list command can take a the number of conversations to list.
+  Without a number it just lists the latest few conversations.
+  Use "gpp list all" to list all the conversations recorded.
+  The recall command can take a the chat number from the list to recall that
+  conversation.  Without a number it returns the last conversation.
   """
-  if len(question) == 1 and question[0] == "list":
+  if len(question) in (1, 2) and question[0] == "list":
     count = 0
+    max = 7 if len(question) == 1 else (0 if question[1] == 'all' else int(question[1]))
     for f in get_chatfiles():
       count += 1
       dt = datetime.fromisoformat(f.stem[5:])
       m = json.loads(f.read_bytes())
       print(f"{count}) {str(dt)[:-3]} {m[1]['content']}")
-      if count >= 7:
+      if max and count >= max:
         break
     return
 
