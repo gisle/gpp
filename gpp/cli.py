@@ -53,7 +53,13 @@ def main(question, new, model, temperature, top_p, stream, output_json):
       count += 1
       dt = datetime.fromisoformat(f.stem[5:])
       m = json.loads(f.read_bytes())
-      print(f"{count}) {str(dt)[:-3]} {m[1]['content']}")
+      txt = m[1]['content']
+      if len(txt) < 70:
+        txt += ' ⇢ ' + m[2]['content']
+      txt = txt.replace("\n", " ")
+      if len(txt) > 80:
+        txt = txt[:77] + '...'
+      print(f"{count:2d}) {str(dt)[:-3]} {txt}")
       if max and count >= max:
         break
     return
