@@ -5,6 +5,7 @@ import sys
 import click
 import openai
 import json
+import re
 from pathlib import Path
 from datetime import datetime
 from rich.console import Console
@@ -39,8 +40,10 @@ def main(question, new, model, temperature, top_p, stream, output_json):
   or pipe the question to the command without giving arguments.
   This is an assistant that prefers to use Norwegian language.
 
-  To continue a conversation instead of starting a new one each time
+  To continue a conversation instead of starting a new one
   pass in the -c option (which can also be spelled --continue).
+  You can also force continuation by prepending the question with
+  a sequence of dots (one is enough).
 
   The follow subcommands can be given as question to access the current
   chat history; "gpp list" and "gpp recall".
@@ -50,6 +53,8 @@ def main(question, new, model, temperature, top_p, stream, output_json):
   The recall command can take a the chat number from the list to recall that
   conversation.  Without a number it returns the last conversation.
   """
+
+  # implement the 'list' subcommand
   if len(question) in (1, 2) and question[0] == "list":
     count = 0
     max = 7 if len(question) == 1 else (0 if question[1] == 'all' else int(question[1]))
@@ -76,6 +81,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
         break
     return
 
+  # implement the 'recall' subcommand
   if len(question) in (1,2) and question[0] == "recall":
     n = 1 if len(question) == 1 else int(question[1])
     f = get_chatfiles()[n-1]
@@ -93,9 +99,14 @@ def main(question, new, model, temperature, top_p, stream, output_json):
         console.print(m['content'], style=("bold" if m['role'] == 'user' else None))
     return
 
+  # preprocess the question
   if len(question) == 0:
     # read the question from stdin
     question = [sys.stdin.read()]
+  elif m:= re.match(r'\.+\s*', question[0]):
+    new = False
+    question = list(question) # can't assign to tuple
+    question[0] = question[0][m.end():] # drop matched dots
 
   # perform conversation
   if new:
