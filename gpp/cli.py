@@ -7,6 +7,7 @@ import openai
 import json
 from pathlib import Path
 from datetime import datetime
+from rich.console import Console
 
 basedir = Path.home() / ".gpp"
 basedir.mkdir(exist_ok=True)
@@ -14,8 +15,11 @@ basedir.mkdir(exist_ok=True)
 
 openai.api_key = os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1]
 
+console = Console()
+
 def print_json(d):
-  print(json.dumps(d, ensure_ascii=False, indent=2))
+  console.print_json(data=d)
+  #print(json.dumps(d, ensure_ascii=False, indent=2))
 
 def get_chatfiles():
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
@@ -54,12 +58,12 @@ def main(question, new, model, temperature, top_p, stream, output_json):
       dt = datetime.fromisoformat(f.stem[5:])
       m = json.loads(f.read_bytes())
       txt = m[1]['content']
-      if len(txt) < 70:
+      if len(txt) < console.width - 25:
         txt += ' ⇢ ' + m[2]['content']
       txt = txt.replace("\n", " ")
-      if len(txt) > 80:
-        txt = txt[:77] + '...'
-      print(f"{count:2d}) {str(dt)[:-3]} {txt}")
+      if len(txt) > console.width - 22:
+        txt = txt[:console.width - 25] + '...'
+      console.print(f"{count:2d}) {str(dt)[:-3]} {txt}")
       if max and count >= max:
         break
     return
@@ -77,8 +81,8 @@ def main(question, new, model, temperature, top_p, stream, output_json):
         'assistant': '👽',
       }
       for m in msgs[1:]:
-        print(icon[m['role']], m['content'])
-        print()
+        console.rule(icon[m['role']])
+        console.print(m['content'])
     return
 
   if len(question) == 0:
@@ -132,7 +136,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
     if output_json:
       print_json(response)
     else:
-      print(answer[-1])
+      console.print(answer[-1])
 
   messages.append(
     {
