@@ -53,9 +53,17 @@ def main(question, new, model, temperature, top_p, stream, output_json):
   if len(question) in (1, 2) and question[0] == "list":
     count = 0
     max = 7 if len(question) == 1 else (0 if question[1] == 'all' else int(question[1]))
+    last_date = None
     for f in get_chatfiles():
       count += 1
       dt = datetime.fromisoformat(f.stem[5:])
+      date = str(dt.date())
+      if date == last_date:
+        date = "[dim]" + date + "[/dim]"
+      else:
+        last_date = date
+      time = str(dt.time())[:-3]
+
       m = json.loads(f.read_bytes())
       txt = m[1]['content']
       if len(txt) < console.width - 25:
@@ -63,7 +71,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
       txt = txt.replace("\n", " ")
       if len(txt) > console.width - 22:
         txt = txt[:console.width - 25] + '...'
-      console.print(f"{count:2d}) {str(dt)[:-3]} {txt}")
+      console.print(f"{count:2d}. {date} {time} {txt}")
       if max and count >= max:
         break
     return
@@ -82,7 +90,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
       }
       for m in msgs[1:]:
         console.rule(icon[m['role']])
-        console.print(m['content'])
+        console.print(m['content'], style=("bold" if m['role'] == 'user' else None))
     return
 
   if len(question) == 0:
