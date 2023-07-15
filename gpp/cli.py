@@ -128,10 +128,10 @@ def main(question, new, model, temperature, top_p, stream, output_json):
     if not output_json:
       print()  # final newline
   else:
+    answer.append(response['choices'][0]['message']['content'])
     if output_json:
       print_json(response)
     else:
-      answer.append(response['choices'][0]['message']['content'])
       print(answer[-1])
 
   messages.append(
