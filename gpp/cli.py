@@ -122,7 +122,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
     messages = [
       {
         "role": "system",
-        "content": "Du er en ekspert som hjelper til med å forklare hvordan ting henger sammen. "
+        "content": "Du er en ekspert som er sikker i din sak og hjelper til med å forklare hvordan ting henger sammen. "
                   "Fortrinnsvis ønsker du å svare kort og presist på norsk."
       },
     ]
