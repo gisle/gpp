@@ -35,7 +35,7 @@ def write_chatfile(path, data):
 
 @click.command()
 @click.argument('question', nargs=-1)
-@click.option('--new/--continue', '-n/-c', default=True, help="Continue previus conversation or start a new one. The default is --new.")
+@click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
 @click.option('--model', default='gpt-3.5-turbo', show_default=True)
 @click.option('--temperature', default=0.8, show_default=True)
 @click.option('--top-p', default=1.0, type=click.FloatRange(0, 1), show_default=True)
