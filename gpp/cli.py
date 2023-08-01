@@ -25,6 +25,14 @@ def print_json(d):
 def get_chatfiles():
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
 
+def read_chatfile(path):
+  return json.loads(path.read_bytes())
+
+def write_chatfile(path, data):
+  if not path:
+    path = basedir / "chats" / ("chat-" + datetime.now().strftime('%Y%m%dT%H%M%S') + '.json')
+  path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+
 @click.command()
 @click.argument('question', nargs=-1)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previus conversation or start a new one. The default is --new.")
@@ -69,7 +77,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
         last_date = date
       time = str(dt.time())[:-3]
 
-      m = json.loads(f.read_bytes())
+      m = read_chatfile(f)
       txt = m[1]['content']
       if len(txt) < console.width - 25:
         txt += ' ⇢ ' + m[2]['content']
@@ -85,7 +93,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
   if len(question) in (1,2) and question[0] == "recall":
     n = 1 if len(question) == 1 else int(question[1])
     f = get_chatfiles()[n-1]
-    msgs = json.loads(f.read_bytes())
+    msgs = read_chatfile(f)
     if output_json:
       print_json(msgs)
     else:
@@ -120,7 +128,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
     ]
   else:
     chatfile = get_chatfiles()[0]
-    messages = json.loads(chatfile.read_bytes())
+    messages = read_chatfile(chatfile)
 
   messages.append({
     "role": "user",
@@ -165,9 +173,7 @@ def main(question, new, model, temperature, top_p, stream, output_json):
   )
 
   # Save the chat
-  if not chatfile:
-    chatfile = basedir / "chats" / ("chat-" + datetime.now().strftime('%Y%m%dT%H%M%S') + '.json')
-  chatfile.write_text(json.dumps(messages, ensure_ascii=False, indent=2))
+  write_chatfile(chatfile, messages)
 
 if __name__ == '__main__':
     main()
