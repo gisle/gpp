@@ -3,13 +3,42 @@ GPP
 
 En kommandolinjeklient for OpenAIs GPT.
 
+## Installasjon
+
 Installer ved å kjøre `poetry install`. Deretter kan det være praktisk å kjøre
-`poetry shell` for å gjøre korrekt versjon av Python og skript tilgjenglig.
+`poetry shell` for å gjøre korrekt versjon av Python og skript tilgjenglig. Alternativ
+kan være å installere en lenke til skriptet:
 
-Skaff deg en OpenAI API-token og gjør den tilgjengelig fra miljøvariabelen `OPENAI_API_KEY`.
+```sh
+ln -s $(poetry run type --path gpp) ~/bin/gpp
+```
 
-Kjør `gpp` med spørsmålet ditt som argument. Eksempel:
+Skaff deg en OpenAI API-token og gjør den tilgjengelig fra miljøvariabelen `OPENAI_API_KEY`, alternativt
+lagre den i filen `~/.gpp/openai-key.txt`.
+
+## Bruk
+
+Normalt vil du kjøre `gpp` med spørsmålet ditt som argument. Eksempel:
 
 ```sh
 $ gpp Hvilke uglearter er observert i Norge\?
 ```
+
+Her er backslash `\` før `?` nødvendig for å unngå at shellet prøver å ekspandere
+filnavn som starter med "Norge".  Alternativ er å sette hele spørsmålet i mellom
+apostrofer eller å kjøre `gpp` uten argument slik at den leser fra spørsmålet `stdin`.
+
+Hvis du vil fortsette på siste samtale istedenfor å starte en ny så gir du opsjonen `--continue` (som kan forkortes til `-c`).
+Alternativ er å starte teksten med én eller flere punktumer, som f.eks dette:
+
+```sh
+$ gpp ...Kan du sette opp en tabell over artene\? Ta med vingespenn og vekt.
+```
+
+Spesielle kommandoer som gjenkjennes er:
+
+* `gpp list [<n> | all]`: Denne lister opp de siste samtalene du har hatt. Her er `<n>` antall samtaler som listes opp, hvor `7` er standardverdi.  Tallet som oppgis først på hver linje er det som du kan bruke med `gpp recall` for å se hele samtalen.
+
+* `gpp recall [<n>]`: Denne skriver ut den n'te siste samtalen du har hatt. Standardverdi for `<n>` er 1, som da er siste samtale.
+
+Kjør `gpp --help` for å lære deg hvilke andre opsjoner du kan bruke sammen med kommandoen.
