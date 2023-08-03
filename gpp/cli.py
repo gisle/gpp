@@ -150,11 +150,12 @@ def main(question, new, model, temperature, top_p, stream, output_json):
 
   if stream:
     for chunk in response:
+      if d := chunk['choices'][0]['delta']:
+        answer.append(d['content'])
       if output_json:
         print_json(chunk)
       else:
         if d := chunk['choices'][0]['delta']:
-          answer.append(d['content'])
           print(d['content'], end='', flush=True)
     if not output_json:
       print()  # final newline
