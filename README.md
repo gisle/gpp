@@ -5,6 +5,8 @@ En kommandolinjeklient for OpenAIs GPT.
 
 ## Installasjon
 
+En forutsetning er at Python 3  og [Poetry](https://python-poetry.org) er installert.
+
 Installer ved å kjøre `poetry install`. Deretter kan det være praktisk å kjøre
 `poetry shell` for å gjøre korrekt versjon av Python og skript tilgjenglig. Alternativ
 kan være å installere en lenke til skriptet:
