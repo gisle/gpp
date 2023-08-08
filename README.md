@@ -15,7 +15,7 @@ kan være å installere en lenke til skriptet:
 ln -s $(poetry run type --path gpp) ~/bin/gpp
 ```
 
-Skaff deg en OpenAI API-token og gjør den tilgjengelig fra miljøvariabelen `OPENAI_API_KEY`, alternativt
+Skaff deg en [OpenAI API-token](https://platform.openai.com/account/api-keys) og gjør den tilgjengelig fra miljøvariabelen `OPENAI_API_KEY`, alternativt
 lagre den i filen `~/.gpp/openai-key.txt`.
 
 ## Bruk
@@ -44,3 +44,9 @@ Spesielle kommandoer som gjenkjennes er:
 * `gpp recall [<n>]`: Denne skriver ut den n'te siste samtalen du har hatt. Standardverdi for `<n>` er 1, som da er siste samtale.
 
 Kjør `gpp --help` for å lære deg hvilke andre opsjoner du kan bruke sammen med kommandoen.
+
+## Se også
+
+https://platform.openai.com/docs/guides/gpt/chat-completions-api describes the API used.
+
+https://llm.datasette.io is a similar tool written by Simon Willison.
