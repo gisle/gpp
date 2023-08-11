@@ -105,6 +105,8 @@ def main(question, new, model, temperature, top_p, stream, output_json):
       for m in msgs[1:]:
         console.rule(icon[m['role']])
         console.print(m['content'], style=("bold" if m['role'] == 'user' else None))
+        if m['role'] == 'assistant':
+          console.print()
     return
 
   # preprocess the question
