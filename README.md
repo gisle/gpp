@@ -47,6 +47,6 @@ Kjør `gpp --help` for å lære deg hvilke andre opsjoner du kan bruke sammen me
 
 ## Se også
 
-https://platform.openai.com/docs/guides/gpt/chat-completions-api describes the API used.
+https://platform.openai.com/docs/guides/gpt/chat-completions-api beskriver APIet som brukes.
 
-https://llm.datasette.io is a similar tool written by Simon Willison.
+https://llm.datasette.io et et tilsvarende verktøy skrevet av Simon Willison.
