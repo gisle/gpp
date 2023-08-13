@@ -22,13 +22,13 @@ def print_json(d):
   console.print_json(data=d)
   #print(json.dumps(d, ensure_ascii=False, indent=2))
 
-def get_chatfiles():
+def get_chatfiles() -> list[Path]:
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
 
-def read_chatfile(path):
+def read_chatfile(path : Path):
   return json.loads(path.read_bytes())
 
-def write_chatfile(path, data):
+def write_chatfile(path : Path | None, data):
   if not path:
     path = basedir / "chats" / ("chat-" + datetime.now().strftime('%Y%m%dT%H%M%S') + '.json')
   path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
