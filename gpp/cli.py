@@ -26,7 +26,10 @@ def get_chatfiles() -> list[Path]:
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
 
 def read_chatfile(path : Path):
-  return json.loads(path.read_bytes())
+  d = json.loads(path.read_bytes())
+  if isinstance(d, list):  # compatibility with old style chat files
+    d = { 'model': 'gpt-3.5-turbo', 'messages': d }
+  return d
 
 def write_chatfile(path : Path | None, data):
   if not path:
@@ -78,7 +81,7 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
         last_date = date
       time = str(dt.time())[:-3]
 
-      m = read_chatfile(f)
+      m = read_chatfile(f)['messages']
       txt = m[1]['content']
       if len(txt) < console.width - 25:
         txt += ' ⇢ ' + m[2]['content']
@@ -123,6 +126,11 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
   if new:
     chatfile = None
     messages = []
+    chat = {
+      'model': model,
+      'resp': [],
+      'messages': messages,
+    }
     if system != "none":
       sys_message = "Du er en ekspert som er sikker i din sak og hjelper til med å forklare hvordan " \
                     "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk."
@@ -140,7 +148,8 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
     if system:
       console.print("[red]Warning: Can't override system with continuation")
     chatfile = get_chatfiles()[0]
-    messages = read_chatfile(chatfile)
+    chat = read_chatfile(chatfile)
+    messages = chat['messages']
 
   messages.append({
     "role": "user",
@@ -169,10 +178,12 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
       else:
         if d := chunk['choices'][0]['delta']:
           print(d['content'], end='', flush=True)
+      chat['resp'].append(chunk)
     if not output_json:
       print()  # final newline
   else:
     answer.append(response['choices'][0]['message']['content'])
+    chat['resp'].append(response)
     if output_json:
       print_json(response)
     else:
@@ -186,7 +197,7 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
   )
 
   # Save the chat
-  write_chatfile(chatfile, messages)
+  write_chatfile(chatfile, chat)
 
 if __name__ == '__main__':
     main()
