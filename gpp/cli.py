@@ -69,9 +69,12 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
   # implement the 'list' subcommand
   if len(question) in (1, 2) and question[0] == "list":
     count = 0
-    max = 7 if len(question) == 1 else (0 if question[1] == 'all' else int(question[1]))
+    max = 7 if len(question) == 1 else (0 if question[1] in ('all', 'files') else int(question[1]))
     last_date = None
     for f in get_chatfiles():
+      if len(question) == 2 and question[1] == 'files':
+        print(f)
+        continue
       count += 1
       dt = datetime.fromisoformat(f.stem[5:])
       date = str(dt.date())
