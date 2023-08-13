@@ -36,12 +36,13 @@ def write_chatfile(path : Path | None, data):
 @click.command()
 @click.argument('question', nargs=-1)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
+@click.option('--system', '-s', help='Replace the default system persona')
 @click.option('--model', default='gpt-3.5-turbo', show_default=True)
 @click.option('--temperature', default=0.8, show_default=True)
 @click.option('--top-p', default=1.0, type=click.FloatRange(0, 1), show_default=True)
 @click.option('--stream/--no-stream', default=True, show_default=True)
 @click.option('--json/--no-json', 'output_json', show_default=True)
-def main(question, new, model, temperature, top_p, stream, output_json):
+def main(question, new, system, model, temperature, top_p, stream, output_json):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
@@ -121,14 +122,23 @@ def main(question, new, model, temperature, top_p, stream, output_json):
   # perform conversation
   if new:
     chatfile = None
-    messages = [
-      {
-        "role": "system",
-        "content": "Du er en ekspert som er sikker i din sak og hjelper til med å forklare hvordan ting henger sammen. "
-                  "Fortrinnsvis ønsker du å svare kort og presist på norsk."
-      },
-    ]
+    messages = []
+    if system != "none":
+      sys_message = "Du er en ekspert som er sikker i din sak og hjelper til med å forklare hvordan " \
+                    "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk."
+      if system is not None:
+        if ' ' in system:
+          sys_message = system
+        else:
+          try:
+            sys_message = (basedir / "system" / system).read_text()
+          except FileNotFoundError:
+            console.print(f"[red]Error: Unknown system '{system}'")
+            return
+      messages.append({ "role": "system", "content": sys_message })
   else:
+    if system:
+      console.print("[red]Warning: Can't override system with continuation")
     chatfile = get_chatfiles()[0]
     messages = read_chatfile(chatfile)
 
