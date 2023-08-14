@@ -117,7 +117,7 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
         'user': '👤',
         'assistant': '👽',
       }
-      for m in chat['messages'][1:]:
+      for m in chat['messages']:
         console.rule(icon[m['role']])
         console.print(m['content'], style=("bold" if m['role'] == 'user' else None))
         if m['role'] == 'assistant':
