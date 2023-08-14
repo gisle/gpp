@@ -146,10 +146,12 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
       if ' ' in system:
         sys_message = system
       else:
+        sys_dir = basedir / "system"
         try:
-          sys_message = (basedir / "system" / system).read_text()
+          sys_message = (sys_dir / system).read_text()
         except FileNotFoundError:
-          console.print(f"[red]Error: Unknown system '{system}'")
+          console.print(f"[red]Error: Unknown system {repr(system)}")
+          console.print(f"Try one of these: {' '.join([repr(f.name) for f in sorted(sys_dir.iterdir())])}")
           return
       messages.append({ "role": "system", "content": sys_message })
   else:
