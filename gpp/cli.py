@@ -100,16 +100,16 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
   if len(question) in (1,2) and question[0] == "recall":
     n = 1 if len(question) == 1 else int(question[1])
     f = get_chatfiles()[n-1]
-    msgs = read_chatfile(f)
+    chat = read_chatfile(f)
     if output_json:
-      print_json(msgs)
+      print_json(chat)
     else:
       icon = {
         'system': '🛂',
         'user': '👤',
         'assistant': '👽',
       }
-      for m in msgs[1:]:
+      for m in chat['messages'][1:]:
         console.rule(icon[m['role']])
         console.print(m['content'], style=("bold" if m['role'] == 'user' else None))
         if m['role'] == 'assistant':
