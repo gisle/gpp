@@ -153,7 +153,7 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
           return
       messages.append({ "role": "system", "content": sys_message })
   else:
-    if system:
+    if system != "default":
       console.print("[red]Warning: Can't override system with continuation")
     chatfile = get_chatfiles()[0]
     chat = read_chatfile(chatfile)
