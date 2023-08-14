@@ -39,9 +39,12 @@ $ gpp ...Kan du sette opp en tabell over artene\? Ta med vingespenn og vekt.
 
 Spesielle kommandoer som gjenkjennes er:
 
-* `gpp list [<n> | all]`: Denne lister opp de siste samtalene du har hatt. Her er `<n>` antall samtaler som listes opp, hvor `7` er standardverdi.  Tallet som oppgis først på hver linje er det som du kan bruke med `gpp recall` for å se hele samtalen.
+* `gpp list [<n> | all | files]`: Denne lister opp de siste samtalene du har hatt. Her er `<n>` antall samtaler som listes opp, hvor `7` er standardverdi.  Tallet som oppgis først på hver linje er det som du kan bruke med `gpp recall` for å se hele samtalen.
 
 * `gpp recall [<n>]`: Denne skriver ut den n'te siste samtalen du har hatt. Standardverdi for `<n>` er 1, som da er siste samtale.
+
+Personligheten til `gpp` kan styres ved å oppgi din egen system prompt with opsjonen `--system`. Her kan du enten oppgi en fullstendig setning, eller bare navnet på en fil som du oppretter under `~/.gpp/system/`-katalogen.  Du kan også redigere
+standardoppførselen til gpp ved å redigere direkte i filen `~/.gpp/system/default`.
 
 Kjør `gpp --help` for å lære deg hvilke andre opsjoner du kan bruke sammen med kommandoen.
 
