@@ -49,11 +49,12 @@ def write_chatfile(path : Path | None, data):
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
 @click.option('--model', default='gpt-3.5-turbo', show_default=True)
+@click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4")
 @click.option('--temperature', default=0.8, show_default=True)
 @click.option('--top-p', default=1.0, type=click.FloatRange(0, 1), show_default=True)
 @click.option('--stream/--no-stream', default=True, show_default=True)
 @click.option('--json/--no-json', 'output_json', show_default=True)
-def main(question, new, system, model, temperature, top_p, stream, output_json):
+def main(question, new, system, model, gpt_4, temperature, top_p, stream, output_json):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
@@ -132,6 +133,9 @@ def main(question, new, system, model, temperature, top_p, stream, output_json):
     new = False
     question = list(question) # can't assign to tuple
     question[0] = question[0][m.end():] # drop matched dots
+
+  if gpt_4:
+    model = 'gpt-4'
 
   # perform conversation
   if new:
