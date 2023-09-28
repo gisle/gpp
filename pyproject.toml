@@ -13,6 +13,7 @@ rich = "^13.4.2"
 
 [tool.poetry.scripts]
 gpp = "gpp.cli:main"
+instruct = "gpp.instruct:main"
 
 [build-system]
 requires = ["poetry-core"]
