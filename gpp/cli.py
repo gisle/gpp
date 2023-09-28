@@ -22,6 +22,8 @@ if not default_system.exists():
     "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk."
   )
 
+default_model = 'gpt-3.5-turbo'
+
 openai.api_key = os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1]
 
 console = Console()
@@ -36,7 +38,7 @@ def get_chatfiles() -> list[Path]:
 def read_chatfile(path : Path):
   d = json.loads(path.read_bytes())
   if isinstance(d, list):  # compatibility with old style chat files
-    d = { 'model': 'gpt-3.5-turbo', 'messages': d }
+    d = { 'model': default_model, 'messages': d }
   return d
 
 def write_chatfile(path : Path | None, data):
@@ -48,7 +50,7 @@ def write_chatfile(path : Path | None, data):
 @click.argument('question', nargs=-1)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
-@click.option('--model', default='gpt-3.5-turbo', show_default=True)
+@click.option('--model', default=None, help=f"What model to use [default: {default_model}]")
 @click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4")
 @click.option('--temperature', default=0.8, show_default=True)
 @click.option('--top-p', default=1.0, type=click.FloatRange(0, 1), show_default=True)
@@ -141,6 +143,8 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
   if new:
     chatfile = None
     messages = []
+    if model is None:
+      model = default_model
     chat = {
       'model': model,
       'resp': [],
@@ -163,6 +167,9 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
       console.print("[red]Warning: Can't override system with continuation")
     chatfile = get_chatfiles()[0]
     chat = read_chatfile(chatfile)
+    if model is None:
+      # continue with the same model as last time
+      model = chat.get('model', default_model)
     messages = chat['messages']
 
   messages.append({
