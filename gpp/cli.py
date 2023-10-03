@@ -52,10 +52,10 @@ def write_chatfile(path : Path | None, data):
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
 @click.option('--model', default=None, help=f"What model to use [default: {default_model}]")
 @click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4")
-@click.option('--temperature', default=0.8, show_default=True)
-@click.option('--top-p', default=1.0, type=click.FloatRange(0, 1), show_default=True)
-@click.option('--stream/--no-stream', default=True, show_default=True)
-@click.option('--json/--no-json', 'output_json', show_default=True)
+@click.option('--temperature', default=0.8, show_default=True, help="How creative/random should generated text be; values above 1.5 tend to produce gibberish.")
+@click.option('--top-p', default=1.0, type=click.FloatRange(0, 1), show_default=True, help="Cut-off point for what tokens to consider in output")
+@click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
+@click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
 def main(question, new, system, model, gpt_4, temperature, top_p, stream, output_json):
   """
   The gpp command is an interface to OpenAI's conversation models.
@@ -70,7 +70,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
 
   The follow subcommands can be given as question to access the current
   chat history; "gpp list" and "gpp recall".
-  The list command can take a the number of conversations to list.
+  The list command can takes the number of conversations to list as argument.
   Without a number it just lists the latest few conversations.
   Use "gpp list all" to list all the conversations recorded.
   The recall command can take a the chat number from the list to recall that
