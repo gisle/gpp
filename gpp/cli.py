@@ -3,7 +3,8 @@
 import os
 import sys
 import click
-import openai
+from openai import OpenAI
+
 import json
 import re
 from pathlib import Path
@@ -24,8 +25,7 @@ if not default_system.exists():
 
 default_model = 'gpt-3.5-turbo'
 
-openai.api_key = os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1]
-
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
 console = Console()
 
 def print_json(d):
@@ -177,7 +177,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
     "content": ' '.join(question),
   })
 
-  response = openai.ChatCompletion.create(
+  response = client.chat.completions.create(
     model=model,
     messages=messages,
     temperature=temperature,
@@ -192,21 +192,21 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
 
   if stream:
     for chunk in response:
-      if d := chunk['choices'][0]['delta']:
-        answer.append(d['content'])
+      if c := chunk.choices[0].delta.content:
+        answer.append(c)
       if output_json:
-        print_json(chunk)
+        print_json(chunk.model_dump(exclude_unset=True))
       else:
-        if d := chunk['choices'][0]['delta']:
-          print(d['content'], end='', flush=True)
-      chat['resp'].append(chunk)
+        if c := chunk.choices[0].delta.content:
+          print(c, end='', flush=True)
+      chat['resp'].append(chunk.model_dump(exclude_unset=True))
     if not output_json:
       print()  # final newline
   else:
-    answer.append(response['choices'][0]['message']['content'])
-    chat['resp'].append(response)
+    answer.append(response.choices[0].message.content)
+    chat['resp'].append(response.model_dump(exclude_unset=True))
     if output_json:
-      print_json(response)
+      print_json(response.model_dump())
     else:
       console.print(answer[-1])
 
