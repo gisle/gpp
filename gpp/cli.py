@@ -163,13 +163,12 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
           console.print(f"[red]Error: Unknown system {repr(system)}")
           console.print(f"Try one of these: {', '.join([repr(f.name) for f in sorted(sys_dir.iterdir())])} or 'none'")
           return
-      if m := re.search(r'\s+\[response_format:(\w+)\]', sys_message):
-        response_format = m.group(1)
-        sys_message = sys_message[:m.start()] + sys_message[m.end():]
-        if response_format != 'json_object':
-          console.print(f"[red]Unrecognized response_format `{response_format}`")
-          return
-        response_format = { "type": response_format }
+      if sys_message.startswith('{'):  # Extract JSON-prolog from system message
+        prolog, end = json.JSONDecoder().raw_decode(sys_message)
+        sys_message = sys_message[end:].lstrip()
+        if "model" in prolog:
+          model = prolog["model"]
+        response_format = prolog.get('response_format')
       messages.append({ "role": "system", "content": sys_message })
   else:
     if system != "default":
