@@ -191,7 +191,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
     messages=messages,
     response_format=response_format,
     temperature=temperature,
-    max_tokens=1024,
+    max_tokens=3072,
     top_p=top_p,
     frequency_penalty=0,
     presence_penalty=0,
