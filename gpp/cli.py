@@ -139,6 +139,8 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
   if gpt_4:
     model = 'gpt-4'
 
+  response_format = None
+
   # perform conversation
   if new:
     chatfile = None
@@ -161,6 +163,13 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
           console.print(f"[red]Error: Unknown system {repr(system)}")
           console.print(f"Try one of these: {', '.join([repr(f.name) for f in sorted(sys_dir.iterdir())])} or 'none'")
           return
+      if m := re.search(r'\s+\[response_format:(\w+)\]', sys_message):
+        response_format = m.group(1)
+        sys_message = sys_message[:m.start()] + sys_message[m.end():]
+        if response_format != 'json_object':
+          console.print(f"[red]Unrecognized response_format `{response_format}`")
+          return
+        response_format = { "type": response_format }
       messages.append({ "role": "system", "content": sys_message })
   else:
     if system != "default":
@@ -180,6 +189,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
   response = client.chat.completions.create(
     model=model,
     messages=messages,
+    response_format=response_format,
     temperature=temperature,
     max_tokens=1024,
     top_p=top_p,
