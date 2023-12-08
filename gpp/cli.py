@@ -61,7 +61,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
   or pipe the question to the command without giving arguments.
-  This is an assistant that prefers to use Norwegian language.
+  This is an assistant that by default prefers to use Norwegian language.
 
   To continue a conversation instead of starting a new one
   pass in the -c option (which can also be spelled --continue).

@@ -8,7 +8,7 @@ En kommandolinjeklient for OpenAIs GPT.
 En forutsetning er at Python 3  og [Poetry](https://python-poetry.org) er installert.
 
 Installer ved å kjøre `poetry install`. Deretter kan det være praktisk å kjøre
-`poetry shell` for å gjøre korrekt versjon av Python og skript tilgjenglig. Alternativ
+`poetry shell` for å gjøre korrekt versjon av Python og skript tilgjengelig. Alternativ
 kan være å installere en lenke til skriptet:
 
 ```sh
@@ -28,7 +28,9 @@ $ gpp Hvilke uglearter er observert i Norge\?
 
 Her er backslash `\` før `?` nødvendig for å unngå at shellet prøver å ekspandere
 filnavn som starter med "Norge".  Alternativ er å sette hele spørsmålet i mellom
-apostrofer eller å kjøre `gpp` uten argument slik at den leser fra spørsmålet `stdin`.
+apostrofer eller å kjøre `gpp` uten argument slik at den leser spørsmålet fra `stdin`.
+Hvis du ikke bruker et Unix shell så vil det være andre regler for hvordan argumenter
+evalueres og sendes inn til programmer som `gpp`.
 
 Hvis du vil fortsette på siste samtale istedenfor å starte en ny så gir du opsjonen `--continue` (som kan forkortes til `-c`).
 Alternativ er å starte teksten med én eller flere punktumer, som f.eks dette:
