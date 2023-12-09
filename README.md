@@ -1,7 +1,7 @@
 GPP
 ----
 
-En kommandolinjeklient for OpenAIs GPT.
+En kommandolinjeklient for OpenAIs GPT modeller.
 
 ## Installasjon
 
@@ -49,7 +49,8 @@ Personligheten til `gpp` kan styres ved å oppgi din egen system prompt with op
 standardoppførselen til gpp ved å redigere direkte i filen `~/.gpp/system/default`.
 
 Systemfilene kan også prefikses med en JSON-objekt som f.eks. kan brukes til å overstyre standardverdiene for parametere
-to konversasjonen.  Her kan du f.eks. velge model eller temperatur.
+til konversasjonen.  Her kan du f.eks. velge model eller temperatur.  For detaljer om hva som kan styres her se
+API-dokumentasjonen lenket til nedenfor.
 
 Kjør `gpp --help` for å lære deg hvilke andre opsjoner du kan bruke sammen med kommandoen.
 
