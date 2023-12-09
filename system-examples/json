@@ -1,0 +1,5 @@
+{
+  "model": "gpt-3.5-turbo-1106",
+  "response_format": { "type": "json_object" }
+}
+Answer the user question in the form of JSON.
