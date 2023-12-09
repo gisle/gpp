@@ -23,10 +23,17 @@ if not default_system.exists():
     "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk."
   )
 
-default_model = 'gpt-3.5-turbo'
-
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
 console = Console()
+
+chat_params_default = {
+  'model': 'gpt-3.5-turbo',
+  'max_tokens': 3072,
+  'temperature': 0.8,
+  'top_p': 1.0,
+  'frequency_penalty': 0,
+  'presence_penalty': 0,
+}
 
 def print_json(d):
   console.print_json(data=d)
@@ -38,7 +45,9 @@ def get_chatfiles() -> list[Path]:
 def read_chatfile(path : Path):
   d = json.loads(path.read_bytes())
   if isinstance(d, list):  # compatibility with old style chat files
-    d = { 'model': default_model, 'messages': d }
+    d = { 'params': {}, 'messages': d, 'resp': [] }
+  elif 'params' not in d:
+    d['params'] = { 'model': d['model'] }
   return d
 
 def write_chatfile(path : Path | None, data):
@@ -46,14 +55,19 @@ def write_chatfile(path : Path | None, data):
     path = basedir / "chats" / ("chat-" + datetime.now().strftime('%Y%m%dT%H%M%S') + '.json')
   path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
 
+def set_dict_defaults(d, defaults):
+  for k in defaults:
+    if k not in d:
+      d[k] = defaults[k]
+
 @click.command()
 @click.argument('question', nargs=-1)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
-@click.option('--model', default=None, help=f"What model to use [default: {default_model}]")
+@click.option('--model', help=f"What model to use [default: {chat_params_default['model']}]")
 @click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4")
-@click.option('--temperature', default=0.8, show_default=True, help="How creative/random should generated text be; values above 1.5 tend to produce gibberish.")
-@click.option('--top-p', default=1.0, type=click.FloatRange(0, 1), show_default=True, help="Cut-off point for what tokens to consider in output")
+@click.option('--temperature', help="How creative/random should generated text be; values above 1.5 tend to produce gibberish.")
+@click.option('--top-p', type=click.FloatRange(0, 1), help="Cut-off point for what tokens to consider in output")
 @click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
 @click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
 def main(question, new, system, model, gpt_4, temperature, top_p, stream, output_json):
@@ -136,21 +150,20 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
     question = list(question) # can't assign to tuple
     question[0] = question[0][m.end():] # drop matched dots
 
-  if gpt_4:
-    model = 'gpt-4'
-
-  response_format = None
+  chat_params = {}
+  if model is not None:       chat_params['model'] = model
+  if gpt_4:                   chat_params['model'] = 'gpt-4'
+  if temperature is not None: chat_params['temperature'] = temperature
+  if top_p is not None:       chat_params['top_p'] = top_p
 
   # perform conversation
   if new:
     chatfile = None
     messages = []
-    if model is None:
-      model = default_model
     chat = {
-      'model': model,
-      'resp': [],
+      'params': chat_params,
       'messages': messages,
+      'resp': [],
     }
     if system != "none":
       if ' ' in system:
@@ -164,20 +177,16 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
           console.print(f"Try one of these: {', '.join([repr(f.name) for f in sorted(sys_dir.iterdir())])} or 'none'")
           return
       if sys_message.startswith('{'):  # Extract JSON-prolog from system message
-        prolog, end = json.JSONDecoder().raw_decode(sys_message)
+        sys_params, end = json.JSONDecoder().raw_decode(sys_message)
         sys_message = sys_message[end:].lstrip()
-        if "model" in prolog:
-          model = prolog["model"]
-        response_format = prolog.get('response_format')
+        set_dict_defaults(chat_params, sys_params)
       messages.append({ "role": "system", "content": sys_message })
   else:
     if system != "default":
       console.print("[red]Warning: Can't override system with continuation")
     chatfile = get_chatfiles()[0]
     chat = read_chatfile(chatfile)
-    if model is None:
-      # continue with the same model as last time
-      model = chat.get('model', default_model)
+    set_dict_defaults(chat_params, chat['params'])
     messages = chat['messages']
 
   messages.append({
@@ -185,16 +194,14 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
     "content": ' '.join(question),
   })
 
+  set_dict_defaults(chat_params, chat_params_default)
+
+  # console.print_json(data=chat); sys.exit(1)  # uncomment to debug param parsing
+
   response = client.chat.completions.create(
-    model=model,
     messages=messages,
-    response_format=response_format,
-    temperature=temperature,
-    max_tokens=3072,
-    top_p=top_p,
-    frequency_penalty=0,
-    presence_penalty=0,
     stream=stream,
+    **chat_params
   )
 
   answer = []

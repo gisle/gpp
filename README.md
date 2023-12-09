@@ -48,6 +48,9 @@ Spesielle kommandoer som gjenkjennes er:
 Personligheten til `gpp` kan styres ved å oppgi din egen system prompt with opsjonen `--system`. Her kan du enten oppgi en fullstendig setning, eller bare navnet på en fil som du oppretter under `~/.gpp/system/`-katalogen.  Du kan også redigere
 standardoppførselen til gpp ved å redigere direkte i filen `~/.gpp/system/default`.
 
+Systemfilene kan også prefikses med en JSON-objekt som f.eks. kan brukes til å overstyre standardverdiene for parametere
+to konversasjonen.  Her kan du f.eks. velge model eller temperatur.
+
 Kjør `gpp --help` for å lære deg hvilke andre opsjoner du kan bruke sammen med kommandoen.
 
 ## Se også
