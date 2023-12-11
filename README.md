@@ -18,6 +18,17 @@ ln -s $(poetry run type --path gpp) ~/bin/gpp
 Skaff deg en [OpenAI API-token](https://platform.openai.com/account/api-keys) og gjør den tilgjengelig fra miljøvariabelen `OPENAI_API_KEY`, alternativt
 lagre den i filen `~/.gpp/openai-key.txt`.
 
+Hvis du har tilgang til en Azure OpenAI endepunkt, så kan dette konfigureres ved å opprette
+filen `~/.gpp/azure-conf.json` og fylle den med parametere på denne formen:
+
+```json
+{
+  "azure_endpoint": "https://<your-name>.openai.azure.com/",
+  "azure_deployment": "gpt-35",
+  "api_key": "<secret>"
+}
+```
+
 ## Bruk
 
 Normalt vil du kjøre `gpp` med spørsmålet ditt som argument. Eksempel:
