@@ -3,7 +3,7 @@
 import os
 import sys
 import click
-from openai import OpenAI
+from openai import OpenAI, AzureOpenAI
 
 import json
 import re
@@ -23,7 +23,16 @@ if not default_system.exists():
     "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk."
   )
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
+if (basedir / "azure-conf.json").exists():
+  with open(basedir / "azure-conf.json") as f:
+    azure_conf = json.load(f)
+    client = AzureOpenAI(
+      api_version="2023-12-01-preview",
+      **azure_conf
+    )
+else:
+  client = OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
+
 console = Console()
 
 chat_params_default = {
