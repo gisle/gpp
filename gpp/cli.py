@@ -217,14 +217,14 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
 
   if stream:
     for chunk in response:
-      if c := chunk.choices[0].delta.content:
-        answer.append(c)
+      chat['resp'].append(chunk.model_dump(exclude_unset=True))
+      if chunk.choices:
+        if c := chunk.choices[0].delta.content:
+          answer.append(c)
+          if not output_json:
+            print(c, end='', flush=True)
       if output_json:
         print_json(chunk.model_dump(exclude_unset=True))
-      else:
-        if c := chunk.choices[0].delta.content:
-          print(c, end='', flush=True)
-      chat['resp'].append(chunk.model_dump(exclude_unset=True))
     if not output_json:
       print()  # final newline
   else:
