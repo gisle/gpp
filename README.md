@@ -1,25 +1,25 @@
 GPP
 ----
 
-En kommandolinjeklient for OpenAIs GPT modeller.
+A command line client for OpenAI's GPT models.
 
-## Installasjon
+## Installation
 
-En forutsetning er at Python 3  og [Poetry](https://python-poetry.org) er installert.
+A prerequisite is that Python 3 and [Poetry](https://python-poetry.org) are installed.
 
-Installer ved å kjøre `poetry install`. Deretter kan det være praktisk å kjøre
-`poetry shell` for å gjøre korrekt versjon av Python og skript tilgjengelig. Alternativ
-kan være å installere en lenke til skriptet:
+Install by running `poetry install`. It can then be convenient to run
+`poetry shell` to make the correct version of Python and scripts available. Alternatively,
+you can install a link to the script:
 
 ```sh
-ln -s $(poetry run type --path gpp) ~/bin/gpp
+ln -s $(poetry run which gpp) ~/bin/gpp
 ```
 
-Skaff deg en [OpenAI API-token](https://platform.openai.com/account/api-keys) og gjør den tilgjengelig fra miljøvariabelen `OPENAI_API_KEY`, alternativt
-lagre den i filen `~/.gpp/openai-key.txt`.
+Get an [OpenAI API token](https://platform.openai.com/account/api-keys) and make it available from the environment variable `OPENAI_API_KEY`, or alternatively
+save it in the file `~/.gpp/openai-key.txt`.
 
-Hvis du har tilgang til en Azure OpenAI endepunkt, så kan dette konfigureres ved å opprette
-filen `~/.gpp/azure-conf.json` og fylle den med parametere på denne formen:
+If you have access to an Azure OpenAI endpoint, it can be configured by creating
+the file `~/.gpp/azure-conf.json` and filling it with parameters in this format:
 
 ```json
 {
@@ -28,48 +28,48 @@ filen `~/.gpp/azure-conf.json` og fylle den med parametere på denne formen:
 }
 ```
 
-Du kan også overstyre `azure_deployment` fra denne konfigurasjonsfilen.  Det kan
-være nyttig hvis du deployments some ikke matcher modell-navnene til OpenAI, men
-dette har side-effekten at opsjonen `--model` da ikke lenger har effekt.
+You can also override `azure_deployment` from this configuration file. It can
+be useful if you have deployments that do not match the model names of OpenAI, but
+this has the side effect that the option `--model` then no longer has any effect.
 
-## Bruk
+## Usage
 
-Normalt vil du kjøre `gpp` med spørsmålet ditt som argument. Eksempel:
-
-```sh
-$ gpp Hvilke uglearter er observert i Norge\?
-```
-
-Her er backslash `\` før `?` nødvendig for å unngå at shellet prøver å ekspandere
-filnavn som starter med "Norge".  Alternativ er å sette hele spørsmålet i mellom
-apostrofer eller å kjøre `gpp` uten argument slik at den leser spørsmålet fra `stdin`.
-Hvis du ikke bruker et Unix shell så vil det være andre regler for hvordan argumenter
-evalueres og sendes inn til programmer som `gpp`.
-
-Hvis du vil fortsette på siste samtale istedenfor å starte en ny så gir du opsjonen `--continue` (som kan forkortes til `-c`).
-Alternativ er å starte teksten med én eller flere punktumer, som f.eks dette:
+Normally, you would run `gpp` with your question as an argument. For example:
 
 ```sh
-$ gpp ...Kan du sette opp en tabell over artene\? Ta med vingespenn og vekt.
+$ gpp What owl species have been observed in Norway\?
 ```
 
-Spesielle kommandoer som gjenkjennes er:
+Here the backslash `\` before `?` is necessary to prevent the shell from trying to expand
+filename that starts with "Norway". Alternatively, put the entire question between
+quotes or run `gpp` without an argument so that it reads the question from `stdin`.
+If you don't use a Unix shell, there will be other rules for how arguments
+are evaluated and passed to programs like `gpp`.
 
-* `gpp list [<n> | all | files]`: Denne lister opp de siste samtalene du har hatt. Her er `<n>` antall samtaler som listes opp, hvor `7` er standardverdi.  Tallet som oppgis først på hver linje er det som du kan bruke med `gpp recall` for å se hele samtalen.
+If you want to continue the last conversation instead of starting a new one, give the option `--continue` (which can be abbreviated `-c`).
+Alternatively, start the text with one or more periods, like this:
 
-* `gpp recall [<n>]`: Denne skriver ut den n'te siste samtalen du har hatt. Standardverdi for `<n>` er 1, som da er siste samtale.
+```sh
+$ gpp ...Can you set up a table of the species\? Include wingspan and weight.
+```
 
-Personligheten til `gpp` kan styres ved å oppgi din egen system prompt with opsjonen `--system`. Her kan du enten oppgi en fullstendig setning, eller bare navnet på en fil som du oppretter under `~/.gpp/system/`-katalogen.  Du kan også redigere
-standardoppførselen til gpp ved å redigere direkte i filen `~/.gpp/system/default`.
+Special commands that are recognized are:
 
-Systemfilene kan også prefikses med en JSON-objekt som f.eks. kan brukes til å overstyre standardverdiene for parametere
-til konversasjonen.  Her kan du f.eks. velge model eller temperatur.  For detaljer om hva som kan styres her se
-API-dokumentasjonen lenket til nedenfor.
+* `gpp list [<n> | all | files]`: This lists the last conversations you have had. Here `<n>` is the number of conversations to list, where `7` is the default value. The number listed at the beginning of each line is what you can use with `gpp recall` to see the whole conversation.
 
-Kjør `gpp --help` for å lære deg hvilke andre opsjoner du kan bruke sammen med kommandoen.
+* `gpp recall [<n>]`: This prints out the nth last conversation you've had. The default value for `<n>` is 1, which is the last conversation.
 
-## Se også
+The personality of `gpp` can be controlled by specifying your own system prompt with the option `--system`. Here you can either specify a full sentence or just the name of a file that you create under the `~/.gpp/system/` directory. You can also edit
+the default behavior of gpp by editing directly in the file `~/.gpp/system/default`.
 
-https://platform.openai.com/docs/guides/gpt/chat-completions-api beskriver APIet som brukes.
+System files can also be prefixed with a JSON object which, for instance, can be used to override the default values for parameters
+for the conversation. Here you can, for example, choose the model or temperature. For details on what can be controlled here, see
+the API documentation linked below.
 
-https://llm.datasette.io et et tilsvarende verktøy skrevet av Simon Willison.
+Run `gpp --help` to learn what other options you can use with the command.
+
+## See also
+
+https://platform.openai.com/docs/guides/gpt/chat-completions-api describes the API used.
+
+https://llm.datasette.io is a similar tool written by Simon Willison.
