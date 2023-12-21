@@ -24,10 +24,13 @@ filen `~/.gpp/azure-conf.json` og fylle den med parametere på denne formen:
 ```json
 {
   "azure_endpoint": "https://<your-name>.openai.azure.com/",
-  "azure_deployment": "gpt-35",
   "api_key": "<secret>"
 }
 ```
+
+Du kan også overstyre `azure_deployment` fra denne konfigurasjonsfilen.  Det kan
+være nyttig hvis du deployments some ikke matcher modell-navnene til OpenAI, men
+dette har side-effekten at opsjonen `--model` da ikke lenger har effekt.
 
 ## Bruk
 

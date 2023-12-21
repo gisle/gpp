@@ -23,16 +23,6 @@ if not default_system.exists():
     "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk."
   )
 
-if (basedir / "azure-conf.json").exists():
-  with open(basedir / "azure-conf.json") as f:
-    azure_conf = json.load(f)
-    client = AzureOpenAI(
-      api_version="2023-12-01-preview",
-      **azure_conf
-    )
-else:
-  client = OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
-
 console = Console()
 
 chat_params_default = {
@@ -47,6 +37,17 @@ chat_params_default = {
 def print_json(d):
   console.print_json(data=d)
   #print(json.dumps(d, ensure_ascii=False, indent=2))
+
+def get_client(model):
+  if (basedir / "azure-conf.json").exists():
+    with open(basedir / "azure-conf.json") as f:
+      azure_conf = json.load(f)
+      azure_conf.setdefault('azure_deployment', model.replace('.', ''))  # can't use dots in deployment name
+      return AzureOpenAI(
+        api_version="2023-12-01-preview",
+        **azure_conf
+      )
+  return OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
 
 def get_chatfiles() -> list[Path]:
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
@@ -207,6 +208,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
 
   # console.print_json(data=chat); sys.exit(1)  # uncomment to debug param parsing
 
+  client = get_client(chat_params['model'])
   response = client.chat.completions.create(
     messages=messages,
     stream=stream,
