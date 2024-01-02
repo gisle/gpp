@@ -75,6 +75,6 @@ To make `gpp` talk to the local server instead of OpenAI's official server you j
 
 ## See also
 
-https://platform.openai.com/docs/guides/gpt/chat-completions-api describes the API used.
+https://platform.openai.com/docs/guides/gpt/chat-completions-api describes the API used, and https://github.com/openai/openai-python is the main Python library used to access this API.
 
 https://llm.datasette.io is a similar tool written by Simon Willison.
