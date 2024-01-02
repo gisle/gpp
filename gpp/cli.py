@@ -3,7 +3,7 @@
 import os
 import sys
 import click
-from openai import OpenAI, AzureOpenAI
+from openai import OpenAI, AzureOpenAI, APIConnectionError
 
 import json
 import re
@@ -219,12 +219,16 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
 
   # console.print_json(data=chat); sys.exit(1)  # uncomment to debug param parsing
 
-  client = get_client(api, chat_params['model'])
-  response = client.chat.completions.create(
-    messages=messages,
-    stream=stream,
-    **chat_params
-  )
+  try:
+    client = get_client(api, chat_params['model'])
+    response = client.chat.completions.create(
+      messages=messages,
+      stream=stream,
+      **chat_params
+    )
+  except APIConnectionError as e:
+    console.print(f"[red]Error:[/red] {e} Can't connect to {e.request.url}")
+    return
 
   answer = []
 
