@@ -68,6 +68,11 @@ the API documentation linked below.
 
 Run `gpp --help` to learn what other options you can use with the command.
 
+## How to run inference locally
+
+If you install [LM Studio](https://lmstudio.ai) then you can easily set up a local OpenAI-API server based on your LLM-model of choice.
+To make `gpp` talk to the local server instead of OpenAI's official server you just set the `GPP_API` environment variable to `http://localhost:1234/v1/`.  When you want some questions to still be redirected to the official OpenAI server just pass in `--api openai` as option.
+
 ## See also
 
 https://platform.openai.com/docs/guides/gpt/chat-completions-api describes the API used.

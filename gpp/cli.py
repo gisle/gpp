@@ -38,8 +38,17 @@ def print_json(d):
   console.print_json(data=d)
   #print(json.dumps(d, ensure_ascii=False, indent=2))
 
-def get_client(model):
-  if (basedir / "azure-conf.json").exists():
+def get_client(api, model):
+  if api is None:
+    if (basedir / "azure-conf.json").exists():
+      api = 'azure'
+    else:
+      api = 'openai'
+
+  if api == 'openai':
+    return OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
+
+  if api == 'azure':
     with open(basedir / "azure-conf.json") as f:
       azure_conf = json.load(f)
       azure_conf.setdefault('azure_deployment', model.replace('.', ''))  # can't use dots in deployment name
@@ -47,7 +56,8 @@ def get_client(model):
         api_version="2023-12-01-preview",
         **azure_conf
       )
-  return OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
+
+  return OpenAI(base_url=api, api_key='not-used')
 
 def get_chatfiles() -> list[Path]:
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
@@ -80,7 +90,8 @@ def set_dict_defaults(d, defaults):
 @click.option('--top-p', type=click.FloatRange(0, 1), help=f"Cut-off point for what tokens to consider in output. Default is {chat_params_default['top_p']}.")
 @click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
 @click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
-def main(question, new, system, model, gpt_4, temperature, top_p, stream, output_json):
+@click.option('--api', envvar='GPP_API', help="Override the API server to use.  Either a URL or 'azure' or 'openai'. Default can be overridden by setting the GPP_API environment variable.")
+def main(question, new, system, model, gpt_4, temperature, top_p, stream, output_json, api):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
@@ -208,7 +219,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
 
   # console.print_json(data=chat); sys.exit(1)  # uncomment to debug param parsing
 
-  client = get_client(chat_params['model'])
+  client = get_client(api, chat_params['model'])
   response = client.chat.completions.create(
     messages=messages,
     stream=stream,
