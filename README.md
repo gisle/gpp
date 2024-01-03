@@ -55,7 +55,9 @@ $ gpp ...Can you set up a table of the species\? Include wingspan and weight.
 
 Special commands that are recognized are:
 
-* `gpp list [<n> | all | files]`: This lists the last conversations you have had. Here `<n>` is the number of conversations to list, where `7` is the default value. The number listed at the beginning of each line is what you can use with `gpp recall` to see the whole conversation.
+* `gpp list [<n> | all | files]`: This lists the last conversations you have had. Here `<n>` is the number of conversations to list, where `7` is the default value. The number printed at the beginning of each line is what you can use with `gpp recall` to view the whole conversation.  Reqesting a listing of `0` cause all conversations to be listed, which is the same as requesting it with `gpp list all`.
+
+  The `gpp list files` variant prints all the absolute names of the JSON files that stores the conversations (newest first).  Can for instance be used to manipulate these with with other Unix tools. For instance a pipeline like `gpp list files | tail -n +50 | xargs echo rm` could be used to prune your history by limiting it to the last 50 conversations you had.
 
 * `gpp recall [<n>]`: This prints out the nth last conversation you've had. The default value for `<n>` is 1, which is the last conversation.
 
