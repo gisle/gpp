@@ -85,7 +85,7 @@ def set_dict_defaults(d, defaults):
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
 @click.option('--model', help=f"What model to use which defaults to {chat_params_default['model']}]")
-@click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4")
+@click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4-turbo")
 @click.option('--temperature', type=click.FloatRange(0, 3), help=f"How creative/random should generated text be. Default is {chat_params_default['temperature']}. Values above 1.5 tend to produce gibberish.")
 @click.option('--top-p', type=click.FloatRange(0, 1), help=f"Cut-off point for what tokens to consider in output. Default is {chat_params_default['top_p']}.")
 @click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
@@ -173,7 +173,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
 
   chat_params = {}
   if model is not None:       chat_params['model'] = model
-  if gpt_4:                   chat_params['model'] = 'gpt-4'
+  if gpt_4:                   chat_params['model'] = 'gpt-4-turbo'
   if temperature is not None: chat_params['temperature'] = temperature
   if top_p is not None:       chat_params['top_p'] = top_p
 
