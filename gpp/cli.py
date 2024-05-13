@@ -86,12 +86,13 @@ def set_dict_defaults(d, defaults):
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
 @click.option('--model', help=f"What model to use which defaults to '{chat_params_default['model']}'")
 @click.option('-3', 'gpt_3', is_flag=True, help="Shortcut for --model=gpt-3.5-turbo")
+@click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4-turbo")
 @click.option('--temperature', type=click.FloatRange(0, 3), help=f"How creative/random should generated text be. Default is {chat_params_default['temperature']}. Values above 1.5 tend to produce gibberish.")
 @click.option('--top-p', type=click.FloatRange(0, 1), help=f"Cut-off point for what tokens to consider in output. Default is {chat_params_default['top_p']}.")
 @click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
 @click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
 @click.option('--api', envvar='GPP_API', help="Override the API server to use.  Either a URL or 'azure' or 'openai'. Default can be overridden by setting the GPP_API environment variable.")
-def main(question, new, system, model, gpt_3, temperature, top_p, stream, output_json, api):
+def main(question, new, system, model, gpt_3, gpt_4, temperature, top_p, stream, output_json, api):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
@@ -174,6 +175,7 @@ def main(question, new, system, model, gpt_3, temperature, top_p, stream, output
   chat_params = {}
   if model is not None:       chat_params['model'] = model
   if gpt_3:                   chat_params['model'] = 'gpt-3.5-turbo'
+  if gpt_4:                   chat_params['model'] = 'gpt-4-turbo'
   if temperature is not None: chat_params['temperature'] = temperature
   if top_p is not None:       chat_params['top_p'] = top_p
 
