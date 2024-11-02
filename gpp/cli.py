@@ -184,6 +184,7 @@ def main(question, new, system, model, gpt_3, gpt_4, temperature, top_p, stream,
     chatfile = None
     messages = []
     chat = {
+      'system': system,
       'params': chat_params,
       'messages': messages,
       'resp': [],
@@ -205,10 +206,10 @@ def main(question, new, system, model, gpt_3, gpt_4, temperature, top_p, stream,
         set_dict_defaults(chat_params, sys_params)
       messages.append({ "role": "system", "content": sys_message })
   else:
-    if system != "default":
-      console.print("[red]Warning: Can't override system with continuation")
     chatfile = get_chatfiles()[0]
     chat = read_chatfile(chatfile)
+    if system != chat.get('system', 'default'):
+      console.print("[red]Warning: Can't override system with continuation")
     set_dict_defaults(chat_params, chat['params'])
     messages = chat['messages']
 
