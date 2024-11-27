@@ -5,7 +5,7 @@ A command line client for OpenAI's GPT models.
 
 ## Installation
 
-A prerequisite is that [uv]](https://docs.astral.sh/uv/getting-started/installation/) is installed.
+A prerequisite is that [uv](https://docs.astral.sh/uv/getting-started/installation/) is installed.
 
 Set up the Python environment by running `uv venv`.  You should then see the
 instructions to activate the Python environment for your shell.  Alternatively,
