@@ -5,14 +5,14 @@ A command line client for OpenAI's GPT models.
 
 ## Installation
 
-A prerequisite is that Python 3 and [Poetry](https://python-poetry.org) are installed.
+A prerequisite is that [uv]](https://docs.astral.sh/uv/getting-started/installation/) is installed.
 
-Install by running `poetry install`. It can then be convenient to run
-`poetry shell` to make the correct version of Python and scripts available. Alternatively,
-you can install a link to the script:
+Set up the Python environment by running `uv venv`.  You should then see the
+instructions to activate the Python environment for your shell.  Alternatively,
+you can install a link to the `gpp` script:
 
 ```sh
-ln -s $(poetry run which gpp) ~/bin/gpp
+ln -s $(uv run which gpp) ~/bin/gpp
 ```
 
 Get an [OpenAI API token](https://platform.openai.com/account/api-keys) and make it available from the environment variable `OPENAI_API_KEY`, or alternatively

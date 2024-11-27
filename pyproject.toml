@@ -1,20 +1,18 @@
-[tool.poetry]
+[project]
+authors = [
+    {name = "Gisle Aas", email = "gisle.aas@uib.no"},
+]
+requires-python = "<4.0,>=3.11"
+dependencies = [
+    "openai<2.0.0,>=1.0.0",
+    "click<9.0.0,>=8.1.4",
+    "rich<14.0.0,>=13.4.2",
+]
 name = "gpp"
 version = "0.1.0"
 description = ""
-authors = ["Gisle Aas <gisle.aas@uib.no>"]
 readme = "README.md"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-openai = "^1.0.0"
-click = "^8.1.4"
-rich = "^13.4.2"
-
-[tool.poetry.scripts]
+[project.scripts]
 gpp = "gpp.cli:main"
 instruct = "gpp.instruct:main"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
