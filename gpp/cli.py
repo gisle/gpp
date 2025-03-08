@@ -53,7 +53,7 @@ def get_client(api, model):
       azure_conf = json.load(f)
       azure_conf.setdefault('azure_deployment', model.replace('.', ''))  # can't use dots in deployment name
       return AzureOpenAI(
-        api_version="2023-12-01-preview",
+        api_version="2024-10-21",
         **azure_conf
       )
 
