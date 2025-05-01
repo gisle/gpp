@@ -27,11 +27,11 @@ console = Console()
 
 chat_params_default = {
   'model': 'gpt-4.1-mini',
-  'max_tokens': 10*1024,
-  'temperature': 0.3,
-  'top_p': 1.0,
-  'frequency_penalty': 0,
-  'presence_penalty': 0,
+  #'max_tokens': 10*1024,
+  #'temperature': 0.3,
+  #'top_p': 1.0,
+  #'frequency_penalty': 0,
+  #'presence_penalty': 0,
 }
 
 def print_json(d):
@@ -86,8 +86,8 @@ def set_dict_defaults(d, defaults):
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
 @click.option('--model', help=f"What model to use which defaults to '{chat_params_default['model']}'")
 @click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4.1")
-@click.option('--temperature', type=click.FloatRange(0, 3), help=f"How creative/random should generated text be. Default is {chat_params_default['temperature']}. Values above 1.5 tend to produce gibberish.")
-@click.option('--top-p', type=click.FloatRange(0, 1), help=f"Cut-off point for what tokens to consider in output. Default is {chat_params_default['top_p']}.")
+@click.option('--temperature', type=click.FloatRange(0, 3), help=f"How creative/random should generated text be.")
+@click.option('--top-p', type=click.FloatRange(0, 1), help=f"Cut-off point for what tokens to consider in output.")
 @click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
 @click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
 @click.option('--api', envvar='GPP_API', help="Override the API server to use.  Either a URL or 'azure' or 'openai'. Default can be overridden by setting the GPP_API environment variable.")
