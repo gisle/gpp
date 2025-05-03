@@ -79,6 +79,8 @@ Another option for running local models is [Ollama](https://ollama.com) which
 when installed will create the API service endpoint at
 `http://localhost:11434/v1`.
 
+If you need to provide an API key you can set the `GPP_API_KEY` environment variable.
+
 ## See also
 
 https://platform.openai.com/docs/guides/gpt/chat-completions-api describes the API used, and https://github.com/openai/openai-python is the main Python library used to access this API.

@@ -57,7 +57,7 @@ def get_client(api, model):
         **azure_conf
       )
 
-  return OpenAI(base_url=api, api_key='not-used')
+  return OpenAI(base_url=api, api_key=os.getenv('GPP_API_KEY', 'not-used'))
 
 def get_chatfiles() -> list[Path]:
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
