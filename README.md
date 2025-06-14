@@ -61,8 +61,23 @@ Special commands that are recognized are:
 
 * `gpp recall [<n>]`: This prints out the nth last conversation you've had. The default value for `<n>` is 1, which is the last conversation.
 
+## System prompt
+
 The personality of `gpp` can be controlled by specifying your own system prompt with the option `--system`. Here you can either specify a full sentence or just the name of a file that you create under the `~/.gpp/system/` directory. You can also edit
 the default behavior of gpp by editing directly in the file `~/.gpp/system/default`.
+
+System prompt files support command interpolation. You can include shell
+commands within your system prompt text using the syntax `$(command)`. When the
+prompt is loaded, these commands will be executed in the shell, and their output
+will be inserted into the prompt dynamically.  This feature allows you to create
+dynamic and context-aware system prompts that can adapt based on the output of
+shell commands.
+
+For example, you can include the current date in your system prompt like this:
+
+```
+You're a helpful assistant.  Current time is $(date).
+```
 
 System files can also be prefixed with a JSON object which, for instance, can be used to override the default values for parameters
 for the conversation. Here you can, for example, choose the model or temperature. For details on what can be controlled here, see

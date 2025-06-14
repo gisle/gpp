@@ -80,6 +80,20 @@ def set_dict_defaults(d, defaults):
     if k not in d:
       d[k] = defaults[k]
 
+def interpolate_commands(text: str) -> str:
+  import subprocess
+  import re
+  # Find all $(...) patterns and replace with command output
+  pattern = re.compile(r'\$\(([^)]+)\)')
+  def repl(match):
+    cmd = match.group(1)
+    try:
+      output = subprocess.check_output(cmd, shell=True, text=True)
+      return output.strip()
+    except Exception:
+      return f"<error executing {cmd}>"
+  return pattern.sub(repl, text)
+
 @click.command()
 @click.argument('question', nargs=-1)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
@@ -202,6 +216,7 @@ def main(question, new, system, model, gpt_4, temperature, top_p, stream, output
         sys_params, end = json.JSONDecoder().raw_decode(sys_message)
         sys_message = sys_message[end:].lstrip()
         set_dict_defaults(chat_params, sys_params)
+      sys_message = interpolate_commands(sys_message)
       messages.append({ "role": "system", "content": sys_message })
   else:
     chatfile = get_chatfiles()[0]
