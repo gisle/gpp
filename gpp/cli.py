@@ -242,6 +242,10 @@ def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream,
     response = client.chat.completions.create(
       messages=messages,
       stream=stream,
+      stream_options={
+        "include_obfuscation": False,
+        "include_usage": True,
+      } if stream else None,
       **chat_params
     )
   except APIConnectionError as e:
