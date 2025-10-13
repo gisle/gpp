@@ -26,7 +26,7 @@ if not default_system.exists():
 console = Console()
 
 chat_params_default = {
-  'model': 'gpt-5-chat-latest',
+  'model': 'gpt-4.1-mini',
   #'max_tokens': 10*1024,
   #'temperature': 0.3,
   #'top_p': 1.0,
@@ -51,7 +51,7 @@ def get_client(api, model):
   if api == 'azure':
     with open(basedir / "azure-conf.json") as f:
       azure_conf = json.load(f)
-      azure_conf.setdefault('azure_deployment', model.replace('.', ''))  # can't use dots in deployment name
+      azure_conf.setdefault('azure_deployment', model)
       return AzureOpenAI(
         api_version="2024-10-21",
         **azure_conf
