@@ -26,7 +26,7 @@ if not default_system.exists():
 console = Console()
 
 chat_params_default = {
-  'model': 'gpt-4.1-mini',
+  'model': 'gpt-5-mini',
   #'max_tokens': 10*1024,
   #'temperature': 0.3,
   #'top_p': 1.0,
