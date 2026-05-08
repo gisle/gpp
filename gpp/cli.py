@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 from datetime import datetime
 from rich.console import Console
+from rich.markdown import Markdown
 
 basedir = Path.home() / ".gpp"
 basedir.mkdir(exist_ok=True)
@@ -172,7 +173,7 @@ def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream,
       }
       for m in chat['messages']:
         console.rule(icon[m['role']])
-        console.print(m['content'], style=("bold" if m['role'] == 'user' else None))
+        console.print(Markdown(m['content']), style=("bold" if m['role'] == 'user' else None))
         if m['role'] == 'assistant':
           console.print()
     return
