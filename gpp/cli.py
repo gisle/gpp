@@ -302,7 +302,7 @@ def main(question, new, system, model, effort, gpt_4, gpt_5, temperature, top_p,
         process_stop=lambda _answer: print(),
       )
     else:
-      with Live(Markdown(""), console=console, refresh_per_second=15) as live:
+      with Live(Markdown(""), console=console, vertical_overflow="visible") as live:
         answer = stream_response(
           response,
           chat,
