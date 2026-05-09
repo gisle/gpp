@@ -30,6 +30,7 @@ console = Console()
 
 chat_params_default = {
   'model': 'gpt-5-mini',
+  'reasoning_effort': 'low',
   #'max_tokens': 10*1024,
   #'temperature': 0.3,
   #'top_p': 1.0,
@@ -119,6 +120,7 @@ def stream_response(response, chat, process_chunk, process_stop=None):
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
 @click.option('--system', '-s', default="default", help='Replace the default system persona')
 @click.option('--model', help=f"What model to use which defaults to '{chat_params_default['model']}'")
+@click.option('--effort', help=f"Override reasoning effort (default: '{chat_params_default['reasoning_effort']}').")
 @click.option('-4', 'gpt_4', is_flag=True, help="Shortcut for --model=gpt-4.1")
 @click.option('-5', 'gpt_5', is_flag=True, help="Shortcut for --model=gpt-5")
 @click.option('--temperature', type=click.FloatRange(0, 3), help=f"How creative/random should generated text be.")
@@ -127,7 +129,7 @@ def stream_response(response, chat, process_chunk, process_stop=None):
 @click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
 @click.option('--raw/--no-raw', 'output_raw', default=False, show_default=True, help="Output assistant text as raw stdout (no markdown rendering)")
 @click.option('--api', envvar='GPP_API', help="Override the API server to use.  Either a URL or 'azure' or 'openai'. Default can be overridden by setting the GPP_API environment variable.")
-def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream, output_json, output_raw, api):
+def main(question, new, system, model, effort, gpt_4, gpt_5, temperature, top_p, stream, output_json, output_raw, api):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
@@ -218,6 +220,7 @@ def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream,
     return
 
   if model is not None:       chat_params['model'] = model
+  if effort is not None:      chat_params['reasoning_effort'] = effort
   if gpt_4:                   chat_params['model'] = 'gpt-4.1'
   if gpt_5:                   chat_params['model'] = 'gpt-5'
   if temperature is not None: chat_params['temperature'] = temperature
