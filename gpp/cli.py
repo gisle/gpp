@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 from datetime import datetime
 from rich.console import Console
+from rich.live import Live
 from rich.markdown import Markdown
 
 basedir = Path.home() / ".gpp"
@@ -21,7 +22,8 @@ default_system = basedir / "system" / "default"
 if not default_system.exists():
   default_system.write_text(
     "Du er en ekspert som er sikker i din sak og hjelper til med å forklare hvordan "
-    "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk."
+    "ting henger sammen. Fortrinnsvis ønsker du å svare kort og presist på norsk. "
+    "Formatter svaret med Markdown."
   )
 
 console = Console()
@@ -95,6 +97,23 @@ def interpolate_commands(text: str) -> str:
       return f"<error executing {cmd}>"
   return pattern.sub(repl, text)
 
+def stream_response(response, chat, process_chunk, process_stop=None):
+  answer = []
+  answer_text = ""
+  for chunk in response:
+    chunk_data = chunk.model_dump(exclude_unset=True)
+    chat['resp'].append(chunk_data)
+    delta_text = ""
+    if chunk.choices:
+      if c := chunk.choices[0].delta.content:
+        delta_text = c
+        answer.append(c)
+    answer_text = ''.join(answer)
+    process_chunk(chunk_data, delta_text, answer_text)
+  if process_stop:
+    process_stop(answer_text)
+  return answer_text
+
 @click.command()
 @click.argument('question', nargs=-1)
 @click.option('--new/--continue', '-n/-c', default=True, help="Continue previous conversation or start a new one. The default is --new.")
@@ -106,8 +125,9 @@ def interpolate_commands(text: str) -> str:
 @click.option('--top-p', type=click.FloatRange(0, 1), help=f"Cut-off point for what tokens to consider in output.")
 @click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
 @click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
+@click.option('--raw/--no-raw', 'output_raw', default=False, show_default=True, help="Output assistant text as raw stdout (no markdown rendering)")
 @click.option('--api', envvar='GPP_API', help="Override the API server to use.  Either a URL or 'azure' or 'openai'. Default can be overridden by setting the GPP_API environment variable.")
-def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream, output_json, api):
+def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream, output_json, output_raw, api):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
@@ -165,6 +185,11 @@ def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream,
     chat = read_chatfile(f)
     if output_json:
       print_json(chat)
+    elif output_raw:
+      for m in chat['messages']:
+        print(f"[{m['role']}]")
+        print(m['content'])
+        print()
     else:
       icon = {
         'system': '🛂',
@@ -188,6 +213,10 @@ def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream,
     question[0] = question[0][m.end():] # drop matched dots
 
   chat_params = {}
+  if output_json and output_raw:
+    console.print("[red]Error:[/red] --json and --raw are mutually exclusive")
+    return
+
   if model is not None:       chat_params['model'] = model
   if gpt_4:                   chat_params['model'] = 'gpt-4.1'
   if gpt_5:                   chat_params['model'] = 'gpt-5'
@@ -253,32 +282,44 @@ def main(question, new, system, model, gpt_4, gpt_5, temperature, top_p, stream,
     console.print(f"[red]Error:[/red] {e} Can't connect to {e.request.url}")
     return
 
-  answer = []
+  answer = ""
 
   if stream:
-    for chunk in response:
-      chat['resp'].append(chunk.model_dump(exclude_unset=True))
-      if chunk.choices:
-        if c := chunk.choices[0].delta.content:
-          answer.append(c)
-          if not output_json:
-            print(c, end='', flush=True)
-      if output_json:
-        print_json(chunk.model_dump(exclude_unset=True))
-    if not output_json:
-      print()  # final newline
+    if output_json:
+      answer = stream_response(
+        response,
+        chat,
+        process_chunk=lambda chunk_data, _delta_text, _answer: print_json(chunk_data),
+      )
+    elif output_raw:
+      answer = stream_response(
+        response,
+        chat,
+        process_chunk=lambda _chunk_data, delta_text, _answer: print(delta_text, end='', flush=True),
+        process_stop=lambda _answer: print(),
+      )
+    else:
+      with Live(Markdown(""), console=console, refresh_per_second=15) as live:
+        answer = stream_response(
+          response,
+          chat,
+          process_chunk=lambda _chunk_data, _delta_text, answer_text: live.update(Markdown(answer_text), refresh=True),
+          process_stop=lambda _answer: console.print(),
+        )
   else:
-    answer.append(response.choices[0].message.content)
+    answer = response.choices[0].message.content
     chat['resp'].append(response.model_dump(exclude_unset=True))
     if output_json:
       print_json(response.model_dump())
+    elif output_raw:
+      print(answer)
     else:
-      console.print(answer[-1])
+      console.print(Markdown(answer))
 
   messages.append(
     {
       "role": "assistant",
-      "content": ''.join(answer)
+      "content": answer
     }
   )
 
