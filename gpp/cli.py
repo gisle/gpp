@@ -3,7 +3,7 @@
 import os
 import sys
 import click
-from openai import OpenAI, AzureOpenAI, APIConnectionError
+from openai import OpenAI, AzureOpenAI, APIConnectionError, BadRequestError
 
 import json
 import re
@@ -114,6 +114,30 @@ def stream_response(response, chat, process_chunk, process_stop=None):
   if process_stop:
     process_stop(answer_text)
   return answer_text
+
+def format_bad_request_error(error: BadRequestError) -> list[str]:
+  body = error.body if isinstance(error.body, dict) else {}
+  payload = body.get('error') if isinstance(body.get('error'), dict) else body
+
+  message = payload.get('message') if isinstance(payload.get('message'), str) else error.message
+  lines = [f"[red]Error:[/red] {message}"]
+
+  param = payload.get('param') if isinstance(payload.get('param'), str) else None
+  code = payload.get('code') if isinstance(payload.get('code'), str) else None
+  request_id = error.request_id
+
+  details = []
+  if param:
+    details.append(f"param={param}")
+  if code:
+    details.append(f"code={code}")
+  if request_id:
+    details.append(f"request_id={request_id}")
+
+  if details:
+    lines.append(f"[dim]Details: {', '.join(details)}[/dim]")
+
+  return lines
 
 @click.command()
 @click.argument('question', nargs=-1)
@@ -281,6 +305,10 @@ def main(question, new, system, model, effort, gpt_4, gpt_5, temperature, top_p,
       } if stream else None,
       **chat_params
     )
+  except BadRequestError as e:
+    for line in format_bad_request_error(e):
+      console.print(line)
+    return
   except APIConnectionError as e:
     console.print(f"[red]Error:[/red] {e} Can't connect to {e.request.url}")
     return
