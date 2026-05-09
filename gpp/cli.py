@@ -3,7 +3,7 @@
 import os
 import sys
 import click
-from openai import OpenAI, AzureOpenAI, APIConnectionError, BadRequestError
+from openai import OpenAI, AzureOpenAI, APIConnectionError, BadRequestError, NotFoundError
 
 import json
 import re
@@ -115,7 +115,7 @@ def stream_response(response, chat, process_chunk, process_stop=None):
     process_stop(answer_text)
   return answer_text
 
-def format_bad_request_error(error: BadRequestError) -> list[str]:
+def format_api_status_error(error: BadRequestError | NotFoundError) -> list[str]:
   body = error.body if isinstance(error.body, dict) else {}
   payload = body.get('error') if isinstance(body.get('error'), dict) else body
 
@@ -305,8 +305,8 @@ def main(question, new, system, model, effort, gpt_4, gpt_5, temperature, top_p,
       } if stream else None,
       **chat_params
     )
-  except BadRequestError as e:
-    for line in format_bad_request_error(e):
+  except (BadRequestError, NotFoundError) as e:
+    for line in format_api_status_error(e):
       console.print(line)
     return
   except APIConnectionError as e:
