@@ -15,22 +15,30 @@ you can install a link to the `gpp` script:
 ln -s $(uv run which gpp) ~/bin/gpp
 ```
 
-Get an [OpenAI API token](https://platform.openai.com/account/api-keys) and make it available from the environment variable `OPENAI_API_KEY`, or alternatively
-save it in the file `~/.gpp/openai-key.txt`.
+`gpp` stores configuration in `~/.gpp/config.toml`.
+This file is created automatically on first run with defaults like this:
 
-If you have access to an Azure OpenAI endpoint, it can be configured by creating
-the file `~/.gpp/azure-conf.json` and filling it with parameters in this format:
+```toml
+model = "gpt-5-mini"
+model_reasoning_effort = "medium"
 
-```json
-{
-  "azure_endpoint": "https://<your-name>.openai.azure.com/",
-  "api_key": "<secret>"
-}
+model_provider = "openai"
+
+[model_providers.openai]
+#base_url = "https://api.openai.com/v1"
+env_key = "OPENAI_API_KEY"
 ```
 
-You can also override `azure_deployment` from this configuration file. It can
-be useful if you have deployments that do not match the model names of OpenAI, but
-this has the side effect that the option `--model` then no longer has any effect.
+Get an [OpenAI API token](https://platform.openai.com/account/api-keys) and expose it through whatever environment variable is configured by `env_key` (by default `OPENAI_API_KEY`).
+
+Provider settings are configured under `[model_providers.<name>]` and selected by `model_provider`. Supported provider fields are:
+
+* `env_key`: Name of environment variable containing API key/bearer token.
+* `bearer_token`: Inline API key/bearer token in config file.
+* `base_url`: Override API base URL (for local gateways or compatible APIs).
+* `wire_api`: Must currently be `chat` (default).
+
+This file format is a subset of the Codex configuration format.
 
 ## Usage
 
@@ -88,13 +96,19 @@ Run `gpp --help` to learn what other options you can use with the command.
 ## How to run inference locally
 
 If you install [LM Studio](https://lmstudio.ai) then you can easily set up a local OpenAI-API server based on your LLM-model of choice.
-To make `gpp` talk to the local server instead of OpenAI's official server you just set the `GPP_API` environment variable to `http://localhost:1234/v1/`.  When you want some questions to still be redirected to the official OpenAI server just pass in `--api openai` as option.
+To make `gpp` talk to the local server, define a provider in `~/.gpp/config.toml` and make it active:
+
+```toml
+model_provider = "local"
+
+[model_providers.local]
+base_url = "http://localhost:1234/v1"
+env_key = "LM_STUDIO_API_KEY"
+```
 
 Another option for running local models is [Ollama](https://ollama.com) which
 when installed will create the API service endpoint at
 `http://localhost:11434/v1`.
-
-If you need to provide an API key you can set the `GPP_API_KEY` environment variable.
 
 ## See also
 

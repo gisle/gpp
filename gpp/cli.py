@@ -3,9 +3,10 @@
 import os
 import sys
 import click
-from openai import OpenAI, AzureOpenAI, APIConnectionError, BadRequestError, NotFoundError
+from openai import OpenAI, APIConnectionError, BadRequestError, NotFoundError
 
 import json
+import tomllib
 import re
 from pathlib import Path
 from datetime import datetime
@@ -26,11 +27,25 @@ if not default_system.exists():
     "Formatter svaret med Markdown."
   )
 
+config_file = basedir / "config.toml"
+if not config_file.exists():
+  config_file.write_text("""model = "gpt-5-mini"
+model_reasoning_effort = "medium"
+
+model_provider = "openai"
+
+[model_providers.openai]
+#base_url = "https://api.openai.com/v1"
+env_key = "OPENAI_API_KEY"
+""")
+
+config = tomllib.loads(config_file.read_text())
+
 console = Console()
 
 chat_params_default = {
-  'model': 'gpt-5-mini',
-  'reasoning_effort': 'low',
+  'model': config.get('model', 'gpt-5-mini'),
+  'reasoning_effort': config.get('model_reasoning_effort', 'low'),
   #'max_tokens': 10*1024,
   #'temperature': 0.3,
   #'top_p': 1.0,
@@ -42,26 +57,21 @@ def print_json(d):
   console.print_json(data=d)
   #print(json.dumps(d, ensure_ascii=False, indent=2))
 
-def get_client(api, model):
-  if api is None:
-    if (basedir / "azure-conf.json").exists():
-      api = 'azure'
-    else:
-      api = 'openai'
+def get_client():
+  provider = config["model_providers"].get(config.get('model_provider', 'openai'), {})
+  if provider.get('wire_api', 'chat') != 'chat':
+      console.print("[red]Error:[/red] Only chat providers are supported")
+      sys.exit(1)
+  args = {}
+  if 'bearer_token' in provider:
+    args['api_key'] = provider['bearer_token']
+  elif 'env_key' in provider:
+    args['api_key'] = os.getenv(provider['env_key'])
+  for k in ('base_url',):
+    if k in provider:
+      args[k] = provider[k]
 
-  if api == 'openai':
-    return OpenAI(api_key=os.getenv("OPENAI_API_KEY") or (basedir / "openai-key.txt").read_text()[:-1])
-
-  if api == 'azure':
-    with open(basedir / "azure-conf.json") as f:
-      azure_conf = json.load(f)
-      azure_conf.setdefault('azure_deployment', model)
-      return AzureOpenAI(
-        api_version="2024-10-21",
-        **azure_conf
-      )
-
-  return OpenAI(base_url=api, api_key=os.getenv('GPP_API_KEY', 'not-used'))
+  return OpenAI(**args)
 
 def get_chatfiles() -> list[Path]:
     return sorted(basedir.glob("chats/chat-*.json"), reverse=True)
@@ -152,8 +162,7 @@ def format_api_status_error(error: BadRequestError | NotFoundError) -> list[str]
 @click.option('--stream/--no-stream', default=True, show_default=True, help="Output tokens as they are generated, trade responsiveness for longer time until complete output")
 @click.option('--json/--no-json', 'output_json', show_default=True, help="Output JSON API response as received for the curious")
 @click.option('--raw/--no-raw', 'output_raw', default=False, show_default=True, help="Output assistant text as raw stdout (no markdown rendering)")
-@click.option('--api', envvar='GPP_API', help="Override the API server to use.  Either a URL or 'azure' or 'openai'. Default can be overridden by setting the GPP_API environment variable.")
-def main(question, new, system, model, effort, gpt_4, gpt_5, temperature, top_p, stream, output_json, output_raw, api):
+def main(question, new, system, model, effort, gpt_4, gpt_5, temperature, top_p, stream, output_json, output_raw):
   """
   The gpp command is an interface to OpenAI's conversation models.
   Just provide the questions you want to ask as argument(s) to the gpp command
@@ -295,7 +304,7 @@ def main(question, new, system, model, effort, gpt_4, gpt_5, temperature, top_p,
   # console.print_json(data=chat); sys.exit(1)  # uncomment to debug param parsing
 
   try:
-    client = get_client(api, chat_params['model'])
+    client = get_client()
     response = client.chat.completions.create(
       messages=messages,
       stream=stream,
